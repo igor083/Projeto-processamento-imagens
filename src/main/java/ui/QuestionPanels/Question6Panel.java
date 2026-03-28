@@ -1,9 +1,8 @@
 package ui.QuestionPanels;
 
 import operation.UnaryImageOperation;
-import operation.impl.unary.*;
+import operation.impl.unary.transformation.*;
 import ui.BaseQuestionPanel;
-import ui.CartesianImagePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,9 +14,6 @@ public class Question6Panel extends BaseQuestionPanel {
     private static final String REFLEXAO = "Reflexão";
     private static final String CISALHAMENTO = "Cisalhamento";
     private static final String ROTACAO = "Rotação";
-
-    private final CartesianImagePanel cartesianA = new CartesianImagePanel();
-    private final CartesianImagePanel cartesianResult = new CartesianImagePanel();
 
     public Question6Panel() {
         build();
@@ -67,8 +63,8 @@ public class Question6Panel extends BaseQuestionPanel {
 
         JPanel reflectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JComboBox<String> reflectionTypeCombo = new JComboBox<>(new String[]{
-                "Horizontal",
-                "Vertical"
+                "X",
+                "Y"
         });
         reflectionPanel.add(new JLabel("Tipo:"));
         reflectionPanel.add(reflectionTypeCombo);
@@ -102,7 +98,7 @@ public class Question6Panel extends BaseQuestionPanel {
 
         loadButton.addActionListener(e -> {
             imageA = chooseAndLoadImage("Selecione a imagem PGM");
-            cartesianA.setGrayImage(imageA);
+            imagePanelA.setGrayImage(imageA);
         });
 
         executeButton.addActionListener(e -> {
@@ -125,7 +121,7 @@ public class Question6Panel extends BaseQuestionPanel {
                 );
 
                 result = imageService.execute(operation, imageA);
-                cartesianResult.setGrayImage(result);
+                resultPanel.setGrayImage(result);
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(
@@ -145,12 +141,7 @@ public class Question6Panel extends BaseQuestionPanel {
         });
 
         saveButton.addActionListener(e -> saveResult());
-
-        clearButton.addActionListener(e -> {
-            clearAllImages();
-            cartesianA.setGrayImage(null);
-            cartesianResult.setGrayImage(null);
-        });
+        clearButton.addActionListener(e -> clearAllImages());
 
         cardLayout.show(paramsContainer, ESCALA);
 
@@ -159,8 +150,8 @@ public class Question6Panel extends BaseQuestionPanel {
         top.add(infoPanel);
 
         JPanel center = new JPanel(new GridLayout(1, 2, 10, 10));
-        center.add(createViewerPanel("Plano Cartesiano - Original", cartesianA));
-        center.add(createViewerPanel("Plano Cartesiano - Resultado", cartesianResult));
+        center.add(createViewerPanel("Imagem Original", imagePanelA));
+        center.add(createViewerPanel("Resultado", resultPanel));
 
         add(top, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);
@@ -187,9 +178,9 @@ public class Question6Panel extends BaseQuestionPanel {
                     Double.parseDouble(translateYText)
             );
             case REFLEXAO -> new ReflectionOperation(
-                    "Horizontal".equals(reflectionType)
-                            ? ReflectionOperation.Type.HORIZONTAL
-                            : ReflectionOperation.Type.VERTICAL
+                    "X".equals(reflectionType)
+                            ? ReflectionOperation.Type.X
+                            : ReflectionOperation.Type.Y
             );
             case CISALHAMENTO -> new ShearOperation(
                     Double.parseDouble(shearXText),

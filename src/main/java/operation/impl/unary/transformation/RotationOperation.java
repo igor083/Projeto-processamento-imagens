@@ -1,4 +1,4 @@
-package operation.impl.unary;
+package operation.impl.unary.transformation;
 
 import model.GrayImage;
 import operation.UnaryImageOperation;

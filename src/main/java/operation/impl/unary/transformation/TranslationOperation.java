@@ -1,9 +1,9 @@
-package operation.impl.unary;
+package operation.impl.unary.transformation;
 
 
 import model.GrayImage;
 import operation.UnaryImageOperation;
-import operation.impl.GeometricTransformUtils;
+
 public class TranslationOperation implements UnaryImageOperation {
 
     private final int tx;

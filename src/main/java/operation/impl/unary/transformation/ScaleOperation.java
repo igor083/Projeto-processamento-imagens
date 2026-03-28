@@ -1,38 +1,34 @@
-package operation.impl.unary;
+package operation.impl.unary.transformation;
 
 
 import model.GrayImage;
 import operation.UnaryImageOperation;
 import operation.impl.GeometricTransformUtils;
 
-public class ReflectionOperation implements UnaryImageOperation {
+public class ScaleOperation implements UnaryImageOperation {
 
-    public enum Type {
-        HORIZONTAL,
-        VERTICAL
-    }
+    private final double sx;
+    private final double sy;
 
-    private final Type type;
-
-    public ReflectionOperation(Type type) {
-        this.type = type;
+    public ScaleOperation(double sx, double sy) {
+        if (sx == 0 || sy == 0) {
+            throw new IllegalArgumentException("Os fatores de escala não podem ser zero.");
+        }
+        this.sx = sx;
+        this.sy = sy;
     }
 
     @Override
     public GrayImage apply(GrayImage image) {
-        double sx = (type == Type.VERTICAL) ? -1 : 1;
-        double sy = (type == Type.HORIZONTAL) ? -1 : 1;
-
         double[][] transform = GeometricTransformUtils.aroundCenter(
                 image,
                 GeometricTransformUtils.scale(sx, sy)
         );
-
         return GeometricTransformUtils.applyAffine(image, transform);
     }
 
     @Override
     public String getName() {
-        return "Reflexão";
+        return "Escala";
     }
 }
