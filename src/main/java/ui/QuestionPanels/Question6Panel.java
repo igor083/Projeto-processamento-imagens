@@ -1,16 +1,204 @@
 package ui.QuestionPanels;
 
+import operation.UnaryImageOperation;
+import operation.impl.unary.*;
 import ui.BaseQuestionPanel;
+import ui.CartesianImagePanel;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Question6Panel extends BaseQuestionPanel {
+
+    private static final String ESCALA = "Escala";
+    private static final String TRANSLACAO = "Translação";
+    private static final String REFLEXAO = "Reflexão";
+    private static final String CISALHAMENTO = "Cisalhamento";
+    private static final String ROTACAO = "Rotação";
+
+    private final CartesianImagePanel cartesianA = new CartesianImagePanel();
+    private final CartesianImagePanel cartesianResult = new CartesianImagePanel();
+
     public Question6Panel() {
-        JTextArea area = new JTextArea();
-        area.setEditable(false);
-        area.setText("Questão 6 - Transformações geométricas\n\n"
-                + "Aba reservada para escala, translação, reflexão, cisalhamento e rotação.");
-        add(new JScrollPane(area), BorderLayout.CENTER);
+        build();
+    }
+
+    private void build() {
+        JPanel top = new JPanel(new GridLayout(3, 1, 0, 8));
+
+        JPanel operationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton loadButton = new JButton("Carregar imagem");
+        JComboBox<String> operationCombo = new JComboBox<>(new String[]{
+                ESCALA,
+                TRANSLACAO,
+                REFLEXAO,
+                CISALHAMENTO,
+                ROTACAO
+        });
+        JButton executeButton = new JButton("Executar");
+        JButton saveButton = new JButton("Salvar resultado");
+        JButton clearButton = new JButton("Limpar Tudo");
+
+        operationPanel.add(new JLabel("Transformação:"));
+        operationPanel.add(loadButton);
+        operationPanel.add(operationCombo);
+        operationPanel.add(executeButton);
+        operationPanel.add(saveButton);
+        operationPanel.add(clearButton);
+
+        CardLayout cardLayout = new CardLayout();
+        JPanel paramsContainer = new JPanel(cardLayout);
+
+        JPanel scalePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JTextField scaleXField = new JTextField("1.5", 6);
+        JTextField scaleYField = new JTextField("1.5", 6);
+        scalePanel.add(new JLabel("sx:"));
+        scalePanel.add(scaleXField);
+        scalePanel.add(new JLabel("sy:"));
+        scalePanel.add(scaleYField);
+
+        JPanel translationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JTextField translateXField = new JTextField("50", 6);
+        JTextField translateYField = new JTextField("30", 6);
+        translationPanel.add(new JLabel("tx:"));
+        translationPanel.add(translateXField);
+        translationPanel.add(new JLabel("ty:"));
+        translationPanel.add(translateYField);
+
+        JPanel reflectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JComboBox<String> reflectionTypeCombo = new JComboBox<>(new String[]{
+                "Horizontal",
+                "Vertical"
+        });
+        reflectionPanel.add(new JLabel("Tipo:"));
+        reflectionPanel.add(reflectionTypeCombo);
+
+        JPanel shearPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JTextField shearXField = new JTextField("0.2", 6);
+        JTextField shearYField = new JTextField("0.0", 6);
+        shearPanel.add(new JLabel("shx:"));
+        shearPanel.add(shearXField);
+        shearPanel.add(new JLabel("shy:"));
+        shearPanel.add(shearYField);
+
+        JPanel rotationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JTextField angleField = new JTextField("30", 6);
+        rotationPanel.add(new JLabel("Ângulo (graus):"));
+        rotationPanel.add(angleField);
+
+        paramsContainer.add(scalePanel, ESCALA);
+        paramsContainer.add(translationPanel, TRANSLACAO);
+        paramsContainer.add(reflectionPanel, REFLEXAO);
+        paramsContainer.add(shearPanel, CISALHAMENTO);
+        paramsContainer.add(rotationPanel, ROTACAO);
+
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        infoPanel.add(new JLabel("As transformações são aplicadas em uma imagem por vez."));
+
+        operationCombo.addActionListener(e -> {
+            String selected = (String) operationCombo.getSelectedItem();
+            cardLayout.show(paramsContainer, selected);
+        });
+
+        loadButton.addActionListener(e -> {
+            imageA = chooseAndLoadImage("Selecione a imagem PGM");
+            cartesianA.setGrayImage(imageA);
+        });
+
+        executeButton.addActionListener(e -> {
+            if (imageA == null) {
+                JOptionPane.showMessageDialog(this, "Carregue uma imagem primeiro.");
+                return;
+            }
+
+            try {
+                UnaryImageOperation operation = createOperation(
+                        (String) operationCombo.getSelectedItem(),
+                        scaleXField.getText(),
+                        scaleYField.getText(),
+                        translateXField.getText(),
+                        translateYField.getText(),
+                        (String) reflectionTypeCombo.getSelectedItem(),
+                        shearXField.getText(),
+                        shearYField.getText(),
+                        angleField.getText()
+                );
+
+                result = imageService.execute(operation, imageA);
+                cartesianResult.setGrayImage(result);
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Verifique os valores numéricos informados.",
+                        "Erro de entrada",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        ex.getMessage(),
+                        "Valor inválido",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+
+        saveButton.addActionListener(e -> saveResult());
+
+        clearButton.addActionListener(e -> {
+            clearAllImages();
+            cartesianA.setGrayImage(null);
+            cartesianResult.setGrayImage(null);
+        });
+
+        cardLayout.show(paramsContainer, ESCALA);
+
+        top.add(operationPanel);
+        top.add(paramsContainer);
+        top.add(infoPanel);
+
+        JPanel center = new JPanel(new GridLayout(1, 2, 10, 10));
+        center.add(createViewerPanel("Plano Cartesiano - Original", cartesianA));
+        center.add(createViewerPanel("Plano Cartesiano - Resultado", cartesianResult));
+
+        add(top, BorderLayout.NORTH);
+        add(center, BorderLayout.CENTER);
+    }
+
+    private UnaryImageOperation createOperation(
+            String selected,
+            String scaleXText,
+            String scaleYText,
+            String translateXText,
+            String translateYText,
+            String reflectionType,
+            String shearXText,
+            String shearYText,
+            String angleText
+    ) {
+        return switch (selected) {
+            case ESCALA -> new ScaleOperation(
+                    Double.parseDouble(scaleXText),
+                    Double.parseDouble(scaleYText)
+            );
+            case TRANSLACAO -> new TranslationOperation(
+                    Double.parseDouble(translateXText),
+                    Double.parseDouble(translateYText)
+            );
+            case REFLEXAO -> new ReflectionOperation(
+                    "Horizontal".equals(reflectionType)
+                            ? ReflectionOperation.Type.HORIZONTAL
+                            : ReflectionOperation.Type.VERTICAL
+            );
+            case CISALHAMENTO -> new ShearOperation(
+                    Double.parseDouble(shearXText),
+                    Double.parseDouble(shearYText)
+            );
+            case ROTACAO -> new RotationOperation(
+                    Double.parseDouble(angleText)
+            );
+            default -> throw new IllegalArgumentException("Transformação inválida.");
+        };
     }
 }
