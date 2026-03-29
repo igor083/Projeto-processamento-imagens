@@ -1,31 +1,49 @@
 package operation.impl.unary.transformation;
 
-
 import model.GrayImage;
 import operation.UnaryImageOperation;
-import operation.impl.GeometricTransformUtils;
 
 public class ShearOperation implements UnaryImageOperation {
 
-    private final double shx;
-    private final double shy;
+    private final int iterations;
 
-    public ShearOperation(double shx, double shy) {
-        this.shx = shx;
-        this.shy = shy;
+    public ShearOperation(int iterations) {
+        if (iterations < 0) {
+            throw new IllegalArgumentException("Número de iterações não pode ser negativo.");
+        }
+        this.iterations = iterations;
     }
 
     @Override
     public GrayImage apply(GrayImage image) {
-        double[][] transform = GeometricTransformUtils.aroundCenter(
-                image,
-                GeometricTransformUtils.shear(shx, shy)
-        );
-        return GeometricTransformUtils.applyAffine(image, transform);
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        if (width != height) {
+            throw new IllegalArgumentException("A transformação do gato de Arnold requer imagem quadrada.");
+        }
+
+        int N = width;
+        GrayImage current = image.copy();
+
+        for (int iter = 0; iter < iterations; iter++) {
+            GrayImage next = new GrayImage(N, N, current.getMaxGray());
+
+            for (int y = 0; y < N; y++) {
+                for (int x = 0; x < N; x++) {
+                    int newX = (x + y) % N;
+                    int newY = (x + 2 * y) % N;
+                    next.setPixel(newX, newY, current.getPixel(x, y));
+                }
+            }
+            current = next;
+        }
+
+        return current;
     }
 
     @Override
     public String getName() {
-        return "Cisalhamento";
+        return "Cisalhamento (Gato de Arnold)";
     }
 }

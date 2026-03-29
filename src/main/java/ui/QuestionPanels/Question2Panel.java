@@ -10,8 +10,8 @@ import java.awt.*;
 
 public class Question2Panel extends BaseQuestionPanel {
 
-    private GrayImage childImage;   // imagem quando criança
-    private GrayImage currentImage; // imagem atual
+    private GrayImage childImage;
+    private GrayImage currentImage;
 
     private JSlider morphSlider;
     private JLabel sliderValueLabel;
@@ -25,7 +25,6 @@ public class Question2Panel extends BaseQuestionPanel {
     private void build() {
         setLayout(new BorderLayout(10, 10));
 
-        // Painel superior com botões
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         loadChildButton = new JButton("Carregar imagem (criança)");
@@ -38,7 +37,6 @@ public class Question2Panel extends BaseQuestionPanel {
         topPanel.add(saveButton);
         topPanel.add(clearButton);
 
-        // Painel do slider
         JPanel sliderPanel = new JPanel(new BorderLayout(10, 5));
         sliderPanel.setBorder(BorderFactory.createTitledBorder("Morfismo - Controle de Tempo"));
 
@@ -53,18 +51,15 @@ public class Question2Panel extends BaseQuestionPanel {
         sliderPanel.add(morphSlider, BorderLayout.CENTER);
         sliderPanel.add(sliderValueLabel, BorderLayout.SOUTH);
 
-        // Painel central com as imagens - USANDO O MESMO PADRÃO DAS OUTRAS QUESTÕES
         JPanel centerPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         centerPanel.add(createViewerPanel("Imagem Criança", imagePanelA));
         centerPanel.add(createViewerPanel("Imagem Atual", imagePanelB));
         centerPanel.add(createViewerPanel("Morfismo (resultado)", resultPanel));
 
-        // ADICIONA NO CENTRO (não no sul) - isso resolve o tamanho
         add(topPanel, BorderLayout.NORTH);
-        add(sliderPanel, BorderLayout.SOUTH);  // slider fica embaixo
-        add(centerPanel, BorderLayout.CENTER); // imagens ocupam o centro
+        add(sliderPanel, BorderLayout.SOUTH);
+        add(centerPanel, BorderLayout.CENTER);
 
-        // --- Ações dos botões ---
         loadChildButton.addActionListener(e -> {
             childImage = chooseAndLoadImage("Selecione a imagem quando criança (formato PGM)");
             imagePanelA.setGrayImage(childImage);
@@ -90,7 +85,6 @@ public class Question2Panel extends BaseQuestionPanel {
             sliderValueLabel.setText("t = 0.00 (100% criança → 0% atual)");
         });
 
-        // Ação do slider: atualiza o morfismo em tempo real
         morphSlider.addChangeListener(e -> {
             if (!morphSlider.getValueIsAdjusting()) {
                 checkAndUpdateMorph();
@@ -99,12 +93,10 @@ public class Question2Panel extends BaseQuestionPanel {
     }
 
     private void checkAndUpdateMorph() {
-        // Verifica se as duas imagens estão carregadas
         if (childImage == null || currentImage == null) {
             return;
         }
 
-        // Verifica se as dimensões são compatíveis
         if (childImage.getWidth() != currentImage.getWidth() ||
                 childImage.getHeight() != currentImage.getHeight()) {
             JOptionPane.showMessageDialog(this,
@@ -116,12 +108,10 @@ public class Question2Panel extends BaseQuestionPanel {
             return;
         }
 
-        // Calcula o valor de t (0 a 1)
         double t = morphSlider.getValue() / 100.0;
         sliderValueLabel.setText(String.format("t = %.2f (%.0f%% criança → %.0f%% atual)",
                 t, (1-t)*100, t*100));
 
-        // Executa o morfismo
         try {
             UnaryImageOperation morphOp = new MorphOperation(currentImage, t);
             result = imageService.execute(morphOp, childImage);

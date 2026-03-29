@@ -62,20 +62,14 @@ public class Question6Panel extends BaseQuestionPanel {
         translationPanel.add(translateYField);
 
         JPanel reflectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JComboBox<String> reflectionTypeCombo = new JComboBox<>(new String[]{
-                "X",
-                "Y"
-        });
+        JComboBox<String> reflectionTypeCombo = new JComboBox<>(new String[]{"X", "Y"});
         reflectionPanel.add(new JLabel("Tipo:"));
         reflectionPanel.add(reflectionTypeCombo);
 
         JPanel shearPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField shearXField = new JTextField("0.2", 6);
-        JTextField shearYField = new JTextField("0.0", 6);
-        shearPanel.add(new JLabel("shx:"));
-        shearPanel.add(shearXField);
-        shearPanel.add(new JLabel("shy:"));
-        shearPanel.add(shearYField);
+        JTextField shearIterationsField = new JTextField("1", 6);
+        shearPanel.add(new JLabel("Iterações:"));
+        shearPanel.add(shearIterationsField);
 
         JPanel rotationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JTextField angleField = new JTextField("30", 6);
@@ -115,8 +109,7 @@ public class Question6Panel extends BaseQuestionPanel {
                         translateXField.getText(),
                         translateYField.getText(),
                         (String) reflectionTypeCombo.getSelectedItem(),
-                        shearXField.getText(),
-                        shearYField.getText(),
+                        shearIterationsField.getText(),
                         angleField.getText()
                 );
 
@@ -164,8 +157,7 @@ public class Question6Panel extends BaseQuestionPanel {
             String translateXText,
             String translateYText,
             String reflectionType,
-            String shearXText,
-            String shearYText,
+            String shearIterationsText,
             String angleText
     ) {
         return switch (selected) {
@@ -178,13 +170,10 @@ public class Question6Panel extends BaseQuestionPanel {
                     Double.parseDouble(translateYText)
             );
             case REFLEXAO -> new ReflectionOperation(
-                    "X".equals(reflectionType)
-                            ? ReflectionOperation.Type.X
-                            : ReflectionOperation.Type.Y
+                    "X".equals(reflectionType) ? ReflectionOperation.Type.X : ReflectionOperation.Type.Y
             );
             case CISALHAMENTO -> new ShearOperation(
-                    Double.parseDouble(shearXText),
-                    Double.parseDouble(shearYText)
+                    Integer.parseInt(shearIterationsText)
             );
             case ROTACAO -> new RotationOperation(
                     Double.parseDouble(angleText)
