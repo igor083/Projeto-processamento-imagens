@@ -5,20 +5,20 @@ import operation.UnaryImageOperation;
 
 public class BinaryOpeningOperation implements UnaryImageOperation {
 
-    private final int threshold;
+    private final StructuringElement se;
 
     public BinaryOpeningOperation() {
-        this(128);
+        this.se = new StructuringElement();
     }
 
-    public BinaryOpeningOperation(int threshold) {
-        this.threshold = threshold;
+    public BinaryOpeningOperation(StructuringElement se) {
+        this.se = se;
     }
 
     @Override
     public GrayImage apply(GrayImage image) {
-        BinaryErosionOperation erosion = new BinaryErosionOperation(threshold);
-        BinaryDilationOperation dilation = new BinaryDilationOperation(threshold);
+        BinaryErosionOperation erosion = new BinaryErosionOperation(se);
+        BinaryDilationOperation dilation = new BinaryDilationOperation(se);
         GrayImage eroded = erosion.apply(image);
         return dilation.apply(eroded);
     }

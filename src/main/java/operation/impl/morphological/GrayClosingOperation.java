@@ -5,10 +5,20 @@ import operation.UnaryImageOperation;
 
 public class GrayClosingOperation implements UnaryImageOperation {
 
+    private final StructuringElement se;
+
+    public GrayClosingOperation() {
+        this.se = new StructuringElement();
+    }
+
+    public GrayClosingOperation(StructuringElement se) {
+        this.se = se;
+    }
+
     @Override
     public GrayImage apply(GrayImage image) {
-        GrayDilationOperation dilation = new GrayDilationOperation();
-        GrayErosionOperation erosion = new GrayErosionOperation();
+        GrayDilationOperation dilation = new GrayDilationOperation(se);
+        GrayErosionOperation erosion = new GrayErosionOperation(se);
         GrayImage dilated = dilation.apply(image);
         return erosion.apply(dilated);
     }
