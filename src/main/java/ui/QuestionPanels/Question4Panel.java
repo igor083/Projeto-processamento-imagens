@@ -25,7 +25,7 @@ public class Question4Panel extends BaseQuestionPanel {
     private void build() {
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        JButton loadButton = new JButton("Carregar lena.pgm");
+        JButton loadButton = new JButton("Carregar imagem");
         JButton equalizeButton = new JButton("Equalizar Histograma");
         JButton saveButton = new JButton("Salvar resultado");
         JButton clearButton = new JButton("Limpar Tudo");
