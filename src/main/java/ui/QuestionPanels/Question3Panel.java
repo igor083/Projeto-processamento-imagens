@@ -1,7 +1,7 @@
 package ui.QuestionPanels;
 
-import operation.UnaryImageOperation;
-import operation.impl.unary.*;
+import operation.intensity.*;
+import operation.interfaces.UnaryImageOperation;
 import ui.BaseQuestionPanel;
 
 import javax.swing.*;

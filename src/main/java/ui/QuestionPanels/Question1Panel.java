@@ -1,9 +1,9 @@
 package ui.QuestionPanels;
 
-import operation.BinaryImageOperation;
-import operation.UnaryImageOperation;
-import operation.impl.*;
-import operation.impl.binary.*;
+import operation.binary.*;
+import operation.convolution.*;
+import operation.interfaces.BinaryImageOperation;
+import operation.interfaces.UnaryImageOperation;
 import ui.BaseQuestionPanel;
 
 import javax.swing.*;

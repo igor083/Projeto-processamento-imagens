@@ -1,8 +1,8 @@
 package ui.QuestionPanels;
 
 import model.GrayImage;
-import operation.UnaryImageOperation;
-import operation.impl.unary.MorphOperation;
+import operation.interfaces.UnaryImageOperation;
+import operation.intensity.MorphOperation;
 import ui.BaseQuestionPanel;
 
 import javax.swing.*;

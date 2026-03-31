@@ -1,7 +1,7 @@
 package ui.QuestionPanels;
 
-import operation.UnaryImageOperation;
-import operation.impl.morphological.*;
+import operation.interfaces.UnaryImageOperation;
+import operation.morphological.*;
 import ui.BaseQuestionPanel;
 
 import javax.swing.*;

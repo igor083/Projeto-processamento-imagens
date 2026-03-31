@@ -3,8 +3,8 @@ package service;
 import io.PgmImageReader;
 import io.PgmImageWriter;
 import model.GrayImage;
-import operation.BinaryImageOperation;
-import operation.UnaryImageOperation;
+import operation.interfaces.BinaryImageOperation;
+import operation.interfaces.UnaryImageOperation;
 
 
 import java.io.File;
