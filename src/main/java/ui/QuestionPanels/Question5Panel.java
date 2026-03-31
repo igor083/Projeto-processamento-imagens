@@ -11,31 +11,37 @@ import java.util.Map;
 
 public class Question5Panel extends BaseQuestionPanel {
 
-    // Mapa que associa o nome da operação com sua implementação
+    // Mapa que associa nome da operação à sua implementação
     private final Map<String, UnaryImageOperation> operations = new LinkedHashMap<>();
+
+    // Elemento estruturante atual (kernel)
     private StructuringElement currentSE = new StructuringElement();
+
+    // Matriz de campos de texto para edição do kernel 3x3
     private JTextField[][] kernelFields;
 
     public Question5Panel() {
-        // Registra todas as operações morfológicas disponíveis
+        // Registra operações
         registerOperations();
 
-        // Monta a interface da tela
+        // Monta interface
         build();
     }
 
     private void registerOperations() {
-        // Operações morfológicas para imagens binárias
+        // Operações básicas (sem kernel customizado)
         operations.put("Dilatação Binária", new BinaryDilationOperation());
         operations.put("Erosão Binária", new BinaryErosionOperation());
         operations.put("Abertura Binária", new BinaryOpeningOperation());
         operations.put("Fechamento Binário", new BinaryClosingOperation());
 
-        // Operações morfológicas para imagens em nível de cinza
+        // Operações nível de cinza
         operations.put("Dilatação Nível Cinza", new GrayDilationOperation());
         operations.put("Erosão Nível Cinza", new GrayErosionOperation());
         operations.put("Abertura Nível Cinza", new GrayOpeningOperation());
         operations.put("Fechamento Nível Cinza", new GrayClosingOperation());
+
+        // Operações adicionais com kernel
         operations.put("Complemento", new ComplementOperation());
         operations.put("Dilatação Binária", new BinaryDilationOperation(currentSE));
         operations.put("Erosão Binária", new BinaryErosionOperation(currentSE));
@@ -53,6 +59,7 @@ public class Question5Panel extends BaseQuestionPanel {
         operations.put("Hit-or-Miss", new HitOrMissOperation());
     }
 
+    // Atualiza operações quando o kernel muda
     private void updateOperationsWithNewKernel() {
         operations.put("Dilatação Binária", new BinaryDilationOperation(currentSE));
         operations.put("Erosão Binária", new BinaryErosionOperation(currentSE));
@@ -70,52 +77,58 @@ public class Question5Panel extends BaseQuestionPanel {
     }
 
     private void build() {
-        // Define layout principal
+        // Layout principal
         setLayout(new BorderLayout(10, 10));
 
-        // Painel superior com controles
+        // Painel superior
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        // Painel superior com botões
+        // Painel duplicado de topo (redundante no código original)
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
         JButton loadButton = new JButton("Carregar imagem");
 
-        // Combo com todas as operações cadastradas
+        // Combo com operações
         JComboBox<String> opCombo = new JComboBox<>(operations.keySet().toArray(new String[0]));
 
         JButton executeButton = new JButton("Executar");
         JButton saveButton = new JButton("Salvar resultado");
         JButton clearButton = new JButton("Limpar Tudo");
 
-        // Adiciona componentes no topo
+        // Adiciona botões no topo
         top.add(loadButton);
         top.add(opCombo);
         top.add(executeButton);
         top.add(saveButton);
         top.add(clearButton);
 
-        // Painel central com imagem original e resultado
+        // Painel simples de imagens (não utilizado no final)
         JPanel center = new JPanel(new GridLayout(1, 2, 10, 10));
         center.add(createViewerPanel("Imagem Original", imagePanelA));
         center.add(createViewerPanel("Resultado", resultPanel));
+
+        // Repetição de componentes no topPanel
         topPanel.add(loadButton);
         topPanel.add(opCombo);
         topPanel.add(executeButton);
         topPanel.add(saveButton);
         topPanel.add(clearButton);
 
-        // Painel das imagens (esquerda)
+        // Painel de imagens (lado esquerdo final)
         JPanel imagePanel = new JPanel(new GridLayout(1, 2, 10, 10));
         imagePanel.add(createViewerPanel("Imagem Original", imagePanelA));
         imagePanel.add(createViewerPanel("Resultado", resultPanel));
 
-        // Painel do kernel (direita)
+        // Painel do kernel (lado direito)
         JPanel kernelPanel = new JPanel(new BorderLayout(5, 5));
         kernelPanel.setBorder(BorderFactory.createTitledBorder("Elemento Estruturante (Kernel 3x3)"));
         kernelPanel.setPreferredSize(new Dimension(200, 200));
 
+        // Grid 3x3 para edição do kernel
         JPanel kernelGridPanel = new JPanel(new GridLayout(3, 3, 5, 5));
         kernelFields = new JTextField[3][3];
+
+        // Cria campos do kernel
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 JTextField field = new JTextField("1", 2);
@@ -125,50 +138,39 @@ public class Question5Panel extends BaseQuestionPanel {
             }
         }
 
+        // Botão para atualizar kernel
         JButton updateKernelButton = new JButton("Atualizar Kernel");
         updateKernelButton.addActionListener(e -> updateKernel());
 
         kernelPanel.add(kernelGridPanel, BorderLayout.CENTER);
         kernelPanel.add(updateKernelButton, BorderLayout.SOUTH);
 
-        // Painel principal: imagens à esquerda, kernel à direita
+        // Painel principal com imagem + kernel
         JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
         centerPanel.add(imagePanel, BorderLayout.CENTER);
         centerPanel.add(kernelPanel, BorderLayout.EAST);
 
-        // Ações dos botões
+        // Ações
         loadButton.addActionListener(e -> {
-            // Carrega a imagem original
             imageA = chooseAndLoadImage("Selecione a imagem PGM");
-
-            // Exibe no painel
             imagePanelA.setGrayImage(imageA);
         });
 
         executeButton.addActionListener(e -> {
-            // Verifica se a imagem foi carregada
             if (imageA == null) {
                 JOptionPane.showMessageDialog(this, "Carregue uma imagem primeiro.");
                 return;
             }
 
-            // Recupera operação selecionada no combo
             UnaryImageOperation op = operations.get(opCombo.getSelectedItem());
-
-            // Executa a operação morfológica
             result = imageService.execute(op, imageA);
-
-            // Exibe o resultado
             resultPanel.setGrayImage(result);
         });
 
-        // Salva imagem resultante
         saveButton.addActionListener(e -> saveResult());
-
-        // Limpa imagens e resultado
         clearButton.addActionListener(e -> clearAllImages());
 
-        // Adiciona componentes na tela
+        // Adiciona componentes finais
         add(top, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
@@ -176,20 +178,33 @@ public class Question5Panel extends BaseQuestionPanel {
     }
 
     private void updateKernel() {
+        // Cria matriz 3x3 do kernel
         int[][] kernelValues = new int[3][3];
+
+        // Lê valores dos campos
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 try {
                     int val = Integer.parseInt(kernelFields[i][j].getText().trim());
+
+                    // Garante valores binários (0 ou 1)
                     kernelValues[i][j] = (val == 0) ? 0 : 1;
                 } catch (NumberFormatException e) {
+                    // Valor inválido vira 1
                     kernelValues[i][j] = 1;
                 }
+
+                // Atualiza campo com valor corrigido
                 kernelFields[i][j].setText(String.valueOf(kernelValues[i][j]));
             }
         }
+
+        // Atualiza elemento estruturante
         currentSE = new StructuringElement(kernelValues);
+
+        // Atualiza operações com novo kernel
         updateOperationsWithNewKernel();
+
         JOptionPane.showMessageDialog(this, "Kernel atualizado com sucesso!");
     }
 }
