@@ -5,50 +5,42 @@ import operation.UnaryImageOperation;
 
 public class BinaryDilationOperation implements UnaryImageOperation {
 
-    private final int[][] kernel;
-    private final int kernelWidth;
-    private final int kernelHeight;
-    private final int threshold;
+    private final StructuringElement se;
 
     public BinaryDilationOperation() {
-        this(128);
+        this.se = new StructuringElement();
     }
 
-    public BinaryDilationOperation(int threshold) {
-        this.kernel = new int[][]{
-                {1, 1, 1},
-                {1, 1, 1},
-                {1, 1, 1}
-        };
-        this.kernelWidth = 3;
-        this.kernelHeight = 3;
-        this.threshold = threshold;
-    }
-
-    private boolean isWhite(int pixel) {
-        return pixel > threshold;
+    public BinaryDilationOperation(StructuringElement se) {
+        this.se = se;
     }
 
     @Override
     public GrayImage apply(GrayImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
-        GrayImage result = new GrayImage(width, height, image.getMaxGray());
+        int maxGray = image.getMaxGray();
+        GrayImage result = new GrayImage(width, height, maxGray);
+        int size = se.getSize();
+        int offset = size / 2;
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 boolean hasWhite = false;
-                for (int ky = -kernelHeight / 2; ky <= kernelHeight / 2; ky++) {
-                    for (int kx = -kernelWidth / 2; kx <= kernelWidth / 2; kx++) {
-                        int px = Math.max(0, Math.min(width - 1, x + kx));
-                        int py = Math.max(0, Math.min(height - 1, y + ky));
-                        int pixel = image.getPixel(px, py);
-                        if (kernel[ky + kernelHeight / 2][kx + kernelWidth / 2] == 1 && isWhite(pixel)) {
-                            hasWhite = true;
+                for (int ky = 0; ky < size; ky++) {
+                    for (int kx = 0; kx < size; kx++) {
+                        if (se.isActive(ky, kx)) {
+                            int px = x + (kx - offset);
+                            int py = y + (ky - offset);
+                            if (px >= 0 && px < width && py >= 0 && py < height) {
+                                if (image.getPixel(px, py) == maxGray) {
+                                    hasWhite = true;
+                                }
+                            }
                         }
                     }
                 }
-                result.setPixel(x, y, hasWhite ? image.getMaxGray() : 0);
+                result.setPixel(x, y, hasWhite ? maxGray : 0);
             }
         }
         return result;
