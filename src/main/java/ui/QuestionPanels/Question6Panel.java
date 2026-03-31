@@ -142,9 +142,9 @@ public class Question6Panel extends BaseQuestionPanel {
         top.add(paramsContainer);
         top.add(infoPanel);
 
-        JPanel center = new JPanel(new GridLayout(1, 2, 10, 10));
-        center.add(createViewerPanel("Imagem Original", imagePanelA));
-        center.add(createViewerPanel("Resultado", resultPanel));
+        JPanel center = new JPanel(new GridLayout(1, 2, 8, 8));
+        center.add(createViewerPanel("Imagem Original", new JScrollPane(imagePanelA)));
+        center.add(createViewerPanel("Resultado", new JScrollPane(resultPanel)));
 
         add(top, BorderLayout.NORTH);
         add(center, BorderLayout.CENTER);

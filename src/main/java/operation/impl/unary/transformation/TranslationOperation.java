@@ -24,7 +24,7 @@ public class TranslationOperation implements UnaryImageOperation {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int sourceX = x - tx;
-                int sourceY = y - ty;
+                int sourceY = y + ty;
 
                 if (sourceX >= 0 && sourceX < width && sourceY >= 0 && sourceY < height) {
                     output.setPixel(x, y, image.getPixel(sourceX, sourceY));
